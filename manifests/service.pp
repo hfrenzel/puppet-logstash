@@ -85,9 +85,16 @@ class logstash::service {
       content => template('logstash/startup.options.erb'),
     }
 
-    # ..and make sure the JVM options are up to date.
-    file { '/etc/logstash/jvm.options':
-      content => template('logstash/jvm.options.erb'),
+    ## ..and make sure the JVM options are up to date.
+    #file { '/etc/logstash/jvm.options':
+    #  content => template('logstash/jvm.options.erb'),
+    #}
+    $logstash::jvm_options.each |String $jvm_option| {
+      file_line { "jvm_option_${jvm_option}":
+        ensure => present,
+        path   => '/etc/logstash/jvm.options',
+        line   => $jvm_option,
+      }
     }
 
     # ..and pipelines.yml, if the user provided such. If they didn't, zero out
